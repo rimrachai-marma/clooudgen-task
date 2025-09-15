@@ -1,7 +1,10 @@
 import ErrorResponse from "../utilities/errorResponse.js";
 
 export const routeNotFound = (req, res, next) => {
-  const error = new ErrorResponse(`Not Found - ${req.originalUrl}`, 404);
+  const error = new ErrorResponse(
+    `Not Found - ${req.method} - ${req.originalUrl}`,
+    404
+  );
 
   next(error);
 };
@@ -9,10 +12,12 @@ export const routeNotFound = (req, res, next) => {
 export const errorHandler = (err, req, res, next) => {
   let statusCode = err?.statusCode ?? 500;
   let message = err?.message ?? "Internal Server Error";
+  let errors = err?.errors ?? null;
 
   res.status(statusCode).json({
     status: "error",
     message,
+    errors,
     ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 };

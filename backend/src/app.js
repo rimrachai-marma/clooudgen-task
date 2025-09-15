@@ -4,6 +4,7 @@ import cors from "cors";
 
 import { routeNotFound, errorHandler } from "./middlewares/error.middleware.js";
 import userRoutes from "./routes/user.route.js";
+import productRoutes from "./routes/product.route.js";
 
 //App Config
 const app = express();
@@ -28,6 +29,7 @@ if (process.env.NODE_ENV === "development") {
 // Routes
 app.get("/", (req, res) => res.json({ message: "✅ Server is healthy" }));
 app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
 
 app.use(routeNotFound);
 app.use(errorHandler);

@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+import ErrorResponse from "../utilities/errorResponse.js";
+
 const tokenSchema = new mongoose.Schema({
   token: {
     type: String,
@@ -78,7 +80,7 @@ userSchema.methods.generateAuthToken = async function () {
     expiresIn: process.env.JWT_EXPIRE,
   });
 
-  this.tokens = this.tokens.concat(token);
+  this.tokens = this.tokens.concat({ token });
   await this.save();
 
   return token;
