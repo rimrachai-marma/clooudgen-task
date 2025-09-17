@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "start": "node app",
+    "start": "node server",
     "start:local": "node --env-file=.env server",
     "dev": "node --env-file=.env --watch server",
     "data:import": "node --env-file=.env seeder",
