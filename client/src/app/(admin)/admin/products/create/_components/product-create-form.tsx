@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -297,7 +297,7 @@ export default function ProductCreateForm() {
               <FormField
                 control={form.control}
                 name="categories"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Categories *</FormLabel>
                     <div className="flex gap-2 mt-2 mb-3">
