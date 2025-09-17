@@ -100,6 +100,9 @@ const productSchema = mongoose.Schema(
         },
         message: "Product must have at least one category",
       },
+      set: function (categories) {
+        return categories.map((cat) => cat.toLowerCase().trim());
+      },
     },
 
     description: {
@@ -117,7 +120,7 @@ const productSchema = mongoose.Schema(
     seoTitle: {
       type: String,
       trim: true,
-      maxlength: [60, "SEO title cannot exceed 60 characters"],
+      maxlength: [100, "SEO title cannot exceed 100 characters"],
     },
     seoDescription: {
       type: String,
@@ -193,20 +196,6 @@ const productSchema = mongoose.Schema(
     toObject: { virtuals: true },
   }
 );
-
-productSchema.index({ name: "text", brand: "text" });
-productSchema.index({ createdAt: -1 });
-productSchema.index({ price: 1, isActive: 1 });
-productSchema.index({ categories: 1, isActive: 1 });
-productSchema.index({ brand: 1, isActive: 1 });
-productSchema.index({ isFeatured: 1, isActive: 1 });
-productSchema.index({ rating: -1, isActive: 1 });
-
-productSchema.virtual("primaryImage").get(function () {
-  if (!this.images || this.images.length === 0) return null;
-  const primary = this.images.find((img) => img.isPrimary);
-  return primary || this.images[0];
-});
 
 productSchema.pre("save", function (next) {
   // Ensure only one primary image

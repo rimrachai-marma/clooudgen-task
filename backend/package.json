@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node app",
     "start:local": "node --env-file=.env server",
-    "dev": "node --env-file=.env --watch server"
+    "dev": "node --env-file=.env --watch server",
+    "data:import": "node --env-file=.env seeder",
+    "data:destroy": "node --env-file=.env seeder -d"
   },
   "author": "Rimrachai Marma",
   "license": "ISC",

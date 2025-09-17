@@ -27,8 +27,8 @@ export const userRegister = asyncHandler(async (req, res) => {
         email: newUser.email,
         role: newUser.role,
       },
-      token: {
-        token_type: "JWT",
+      access_token: {
+        token_type: "Bearer",
         token: token,
       },
     },
@@ -55,8 +55,8 @@ export const userLogin = asyncHandler(async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      token: {
-        token_type: "JWT",
+      access_token: {
+        token_type: "Bearer",
         token: token,
       },
     },

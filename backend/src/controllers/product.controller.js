@@ -8,6 +8,7 @@ import { generateSlug } from "../utilities/helper.js";
 export const createProduct = asyncHandler(async (req, res) => {
   const { name } = req.validatedData;
   const slug = generateSlug(name);
+
   const newProduct = await Product.create({
     user: req.user._id,
     slug,
@@ -35,11 +36,19 @@ export const getProducts = asyncHandler(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
 
   const query = { isActive: true }; // Only show active products
+  let sort = { createdAt: -1 };
 
   //search keyword
   //keyword=[Somthing]
-  if (req.query.keyword) {
-    query.$text = { $search: req.query.keyword };
+  if (req.query.keyword && req.query.keyword.trim()) {
+    const keyword = req.query.keyword.trim();
+
+    query.$or = [
+      { name: { $regex: keyword, $options: "i" } },
+      { brand: { $regex: keyword, $options: "i" } },
+      { shortDescription: { $regex: keyword, $options: "i" } },
+      { categories: { $elemMatch: { $regex: keyword, $options: "i" } } },
+    ];
   }
 
   // filter by brand
@@ -48,7 +57,7 @@ export const getProducts = asyncHandler(async (req, res) => {
     query.brand = {
       $in: req.query.brands
         .split(",")
-        .map((brand) => brand.trim())
+        .map((brand) => decodeURIComponent(brand).trim())
         .filter(Boolean),
     };
   }
@@ -56,7 +65,7 @@ export const getProducts = asyncHandler(async (req, res) => {
   // filter  by category
   //category=[Somthing]
   if (req.query.category) {
-    query.categories = { $in: [req.query.category.trim()] };
+    query.categories = { $in: [decodeURIComponent(req.query.category).trim()] };
   }
 
   // Filter by available in stock
@@ -100,7 +109,6 @@ export const getProducts = asyncHandler(async (req, res) => {
 
   //sorting
   // sort=price&order=desc
-  let sort = { createdAt: -1 };
 
   if (
     req.query.sort &&
@@ -115,6 +123,7 @@ export const getProducts = asyncHandler(async (req, res) => {
       name: { name: order },
       created: { createdAt: order },
       newest: { createdAt: order },
+      updated: { updatedAt: order },
     };
 
     sort = sortMap[sortField] || sort;
@@ -123,6 +132,14 @@ export const getProducts = asyncHandler(async (req, res) => {
   const results = await Product.aggregate([
     { $match: query },
     { $sort: sort },
+
+    {
+      $project: {
+        costPrice: 0,
+        reviews: 0,
+        user: 0,
+      },
+    },
 
     {
       $facet: {
@@ -152,8 +169,8 @@ export const getProducts = asyncHandler(async (req, res) => {
         keyword: req.query.keyword || null,
         brands: req.query.brands?.split(",") || null,
         category: req.query.category || null,
-        minPrice: !isNaN(minPrice) ? minPrice : null,
-        maxPrice: !isNaN(maxPrice) ? maxPrice : null,
+        min_price: !isNaN(minPrice) ? minPrice : null,
+        max_price: !isNaN(maxPrice) ? maxPrice : null,
         inStock: req.query.in_stock || null,
         rating: req.query.rating || null,
         featured: req.query.featured || null,
@@ -162,6 +179,30 @@ export const getProducts = asyncHandler(async (req, res) => {
         field: req.query.sort || "created",
         order: req.query.order || "desc",
       },
+    },
+  });
+});
+
+// @desc    Fetch single product
+// @route   GET /api/products/:slug
+// @access  Public
+export const getProduct = asyncHandler(async (req, res) => {
+  const product = await Product.findOne({ slug: req.params.slug }).populate({
+    path: "reviews",
+    populate: {
+      path: "user",
+      select: "name email",
+    },
+  });
+
+  if (!product) {
+    throw new ErrorResponse("Product not found", 404);
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      product,
     },
   });
 });
