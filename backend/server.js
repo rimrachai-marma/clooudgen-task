@@ -1,10 +1,30 @@
 import app from "./src/app.js";
 import connect_db from "./src/config/database.js";
+import { logger } from "./src/utilities/logger.js";
+import redisService from "./src/services/redis/index.js";
 
 (async () => {
   try {
     // Connect to database
     await connect_db();
+
+    // Initialize Redis services
+    await redisService.initialize().catch((error) => {
+      logger.error("Failed to initialize Redis:", error);
+    });
+
+    // Graceful shutdown
+    process.on("SIGTERM", async () => {
+      logger.info("SIGTERM received, shutting down gracefully");
+      await redisService.shutdown();
+      process.exit(0);
+    });
+
+    process.on("SIGINT", async () => {
+      logger.info("SIGINT received, shutting down gracefully");
+      await redisService.shutdown();
+      process.exit(0);
+    });
 
     // Start server after successful DB connection
     const PORT = process.env.PORT || 8080;

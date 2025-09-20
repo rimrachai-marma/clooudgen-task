@@ -2,17 +2,23 @@ import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 
-import { routeNotFound, errorHandler } from "./middlewares/error.middleware.js";
-import userRoutes from "./routes/user.route.js";
-import productRoutes from "./routes/product.route.js";
+import routes from "./routes/index.js";
+import { routeNotFound, errorHandler } from "./middlewares/errorHandler.js";
 
 //App Config
 const app = express();
 
 //Middleware
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(",") || true,
+    credentials: process.env.CORS_CREDENTIALS === "true",
+  })
+);
+// Trust proxy (important for rate limiting behind load balancer)
+app.set("trust proxy", 1);
 
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
@@ -26,10 +32,7 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-// Routes
-app.get("/", (req, res) => res.json({ message: "✅ Server is healthy" }));
-app.use("/api/users", userRoutes);
-app.use("/api/products", productRoutes);
+app.use("/", routes);
 
 app.use(routeNotFound);
 app.use(errorHandler);

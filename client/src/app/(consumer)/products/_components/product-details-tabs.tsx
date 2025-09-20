@@ -11,7 +11,6 @@ interface Props {
 
 const ProductDetailsTabs: React.FC<Props> = ({ product }) => {
   const [activeTab, setActiveTab] = React.useState("description");
-  console.log(product);
 
   return (
     <div className="space-y-6">

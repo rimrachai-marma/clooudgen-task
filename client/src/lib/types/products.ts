@@ -67,7 +67,7 @@ export interface Sort {
   order: "asc" | "desc";
 }
 
-export interface ProductListResponse {
+export interface ProductList {
   products: Product[];
   pagination: Pagination;
   filters: Filters;

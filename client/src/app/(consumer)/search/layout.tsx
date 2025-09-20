@@ -1,5 +1,5 @@
-import Collections from "@/app/(consumer)/_components/collections";
-import Sorting from "@/app/(consumer)/_components/sortting";
+import Collections from "@/app/(consumer)/search/_components/collections";
+import Sorting from "@/app/(consumer)/search/_components/sortting";
 import { Suspense } from "react";
 import ChildrenWrapper from "./_components/children-wrapper";
 

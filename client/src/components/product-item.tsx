@@ -4,8 +4,7 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import Link from "next/link";
 import { Product } from "@/lib/types/products";
-import { formatCurrency } from "@/lib/utils/formater";
-import { getPrimaryImage } from "@/lib/utils";
+import { formatCurrency, getPrimaryImage } from "@/lib/utils";
 
 interface Props {
   product: Product;

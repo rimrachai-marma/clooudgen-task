@@ -36,7 +36,7 @@ export async function signup(
   const { name, email, password, confirmPassword } = validatedFields.data;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/users/register`, {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,8 +53,8 @@ export async function signup(
 
     if (!response.ok) {
       return {
-        message: responseData.message || "Internal server error",
-        errors: responseData.errors || {},
+        message: responseData.message,
+        errors: responseData.data?.errors,
         data: { name, email },
       };
     }
@@ -70,11 +70,12 @@ export async function signup(
     console.log("Signup failed: ", error);
 
     return {
-      message: "Internal server error",
-      errors: {},
-      data: { email: validatedFields.data.email },
+      message: "Something went wrong",
+      data: { email: email },
     };
   }
+
+  redirect("/");
 }
 
 export async function login(
@@ -93,9 +94,10 @@ export async function login(
       data: { email: formData.get("email") as string },
     };
   }
+  let user;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/users/login`, {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -109,8 +111,8 @@ export async function login(
 
     if (!response.ok) {
       return {
-        message: responseData.message || "Internal server error",
-        errors: responseData.errors || {},
+        message: responseData.message,
+        errors: responseData.data?.errors,
         data: { email: validatedFields.data.email },
       };
     }
@@ -122,22 +124,28 @@ export async function login(
       sameSite: "lax" as const,
       maxAge: TOKEN_EXPIRES_IN,
     });
+
+    user = responseData.data.user;
   } catch (error) {
     console.log("Login failed: ", error);
 
     return {
-      message: "Internal server error",
-      errors: {},
+      message: "Somthing went wrong",
       data: { email: validatedFields.data.email },
     };
   }
+
+  if (user.role === "admin" || user.role === "superadmin") {
+    redirect("/admin/dashboard");
+  }
+  redirect("/");
 }
 
 export async function logout() {
   const token = await getAuthToken();
 
   try {
-    const response = await fetch(`${API_BASE_URL}/users/logout`, {
+    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -156,7 +164,7 @@ export async function logout() {
 
 export async function validateUser(authToken: string): Promise<User | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/users/profile`, {
+    const response = await fetch(`${API_BASE_URL}/auth/verify`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",

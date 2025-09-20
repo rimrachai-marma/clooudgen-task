@@ -45,7 +45,7 @@ export default async function middleware(req: NextRequest) {
   }
 
   // Handle authenticated users on public routes (except home page)
-  if (isPublicRoute && user && path !== "/") {
+  if (isPublicRoute && user && (path === "/login" || path === "/signup")) {
     if (user.role === "admin" || user.role === "superadmin") {
       return NextResponse.redirect(new URL("/admin/dashboard", req.nextUrl));
     }

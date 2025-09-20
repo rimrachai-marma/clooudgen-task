@@ -1,6 +1,5 @@
 import React from "react";
-
-import ProductItemSkeleton from "@/components/produc-tItem-skeleton";
+import ProductItemSkeleton from "./_components/produc-tItem-skeleton";
 
 export default function Loading() {
   return (

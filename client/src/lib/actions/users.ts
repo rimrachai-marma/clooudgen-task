@@ -5,7 +5,10 @@ import { getAuthToken } from "./auth";
 // Configuration
 const API_BASE_URL = env.API_BASE_URL;
 
-export async function getProfile(): Promise<User | null> {
+export async function getProfile(): Promise<{
+  user?: User;
+  message?: string;
+} | null> {
   const token = await getAuthToken();
   if (!token) return null;
 
@@ -17,16 +20,15 @@ export async function getProfile(): Promise<User | null> {
       },
     });
 
-    if (!response.ok) {
-      return null;
-    }
-
     const responseData = await response.json();
 
-    return responseData?.data?.user || null;
+    if (!response.ok) {
+      return { message: responseData.message };
+    }
+
+    return { user: responseData.data.user };
   } catch (error) {
     console.log("User profile fetch error: ", error);
-
     return null;
   }
 }

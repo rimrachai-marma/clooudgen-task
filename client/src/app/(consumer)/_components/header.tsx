@@ -7,7 +7,7 @@ import Form from "next/form";
 import { logout } from "@/lib/actions/auth";
 
 export default async function Header() {
-  const user = await getProfile();
+  const userData = await getProfile();
 
   return (
     <header className="border-b border-gray-200 p-4">
@@ -22,11 +22,11 @@ export default async function Header() {
 
         <div className="flex items-center space-x-3.5">
           <Suspense fallback={null}>
-            {user && (
+            {userData?.user && (
               <>
                 <Link href="/profile" className="border-r-2">
                   <Button variant="link" className="cursor-pointer">
-                    {user?.name}
+                    {userData?.user.name}
                   </Button>
                 </Link>
                 <Form action={logout}>
@@ -37,7 +37,7 @@ export default async function Header() {
               </>
             )}
 
-            {!user && (
+            {!userData?.user && (
               <Link href="/login">
                 <Button variant="outline" className="cursor-pointer">
                   Login

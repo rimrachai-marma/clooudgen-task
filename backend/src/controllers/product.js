@@ -1,6 +1,13 @@
-import Product from "../models/product.model.js";
-import asyncHandler from "../middlewares/asyncHandler.middleware.js";
-import { generateSlug } from "../utilities/helper.js";
+import Product from "../models/product.js";
+import asyncHandler from "../middlewares/asyncHandler.js";
+import ErrorResponse from "../utilities/errorResponse.js";
+import {
+  clearProductCaches,
+  generateCacheKey,
+  generateSlug,
+} from "../utilities/helper.js";
+import cacheService from "../services/redis/cache.js";
+import { CACHE_TTL } from "../utilities/constants.js";
 
 // @desc    Create a new product
 // @route   POST /api/admin/products
@@ -15,6 +22,8 @@ export const createProduct = asyncHandler(async (req, res) => {
     ...req.validatedData,
   });
 
+  await clearProductCaches();
+
   res.status(201).json({
     status: "success",
     message: "Product created successfully",
@@ -28,6 +37,17 @@ export const createProduct = asyncHandler(async (req, res) => {
 // @route   GET /api/products
 // @access  Public
 export const getProducts = asyncHandler(async (req, res) => {
+  const cacheKey = generateCacheKey("products", req.query);
+  const cachedResult = await cacheService.get(cacheKey);
+
+  if (cachedResult) {
+    return res.status(200).json({
+      status: "success",
+      ...cachedResult,
+      cached: true,
+    });
+  }
+
   const defaultPageSize = parseInt(process.env.PAGINATION_LIMIT, 10) || 12;
   const pageSize = Math.max(
     1,
@@ -153,8 +173,7 @@ export const getProducts = asyncHandler(async (req, res) => {
   const count = results[0].metadata[0] ? results[0].metadata[0].total : 0;
   const pages = Math.ceil(count / pageSize);
 
-  res.status(200).json({
-    status: "success",
+  const responseData = {
     data: {
       products,
       pagination: {
@@ -180,6 +199,18 @@ export const getProducts = asyncHandler(async (req, res) => {
         order: req.query.order || "desc",
       },
     },
+  };
+
+  // shorter TTL for search results, longer for general listings
+  const ttl = req.query.keyword
+    ? CACHE_TTL.PRODUCT_LIST / 2
+    : CACHE_TTL.PRODUCT_LIST;
+  await cacheService.set(cacheKey, responseData, ttl);
+
+  res.status(200).json({
+    status: "success",
+    ...responseData,
+    cached: false,
   });
 });
 
@@ -187,22 +218,30 @@ export const getProducts = asyncHandler(async (req, res) => {
 // @route   GET /api/products/:slug
 // @access  Public
 export const getProduct = asyncHandler(async (req, res) => {
-  const product = await Product.findOne({ slug: req.params.slug }).populate({
-    path: "reviews",
-    populate: {
-      path: "user",
-      select: "name email",
-    },
-  });
+  const { slug } = req.params;
+  const cacheKey = `product:${slug}`;
 
-  if (!product) {
-    throw new ErrorResponse("Product not found", 404);
-  }
+  const { data, cached } = await cacheService.getOrSet(cacheKey, async () => {
+    const product = await Product.findOne({ slug }).populate({
+      path: "reviews",
+      populate: {
+        path: "user",
+        select: "name email",
+      },
+    });
+
+    if (!product) {
+      throw new ErrorResponse("Product not found", 404);
+    }
+
+    return product;
+  });
 
   res.status(200).json({
     status: "success",
     data: {
-      product,
+      product: data,
     },
+    cached,
   });
 });

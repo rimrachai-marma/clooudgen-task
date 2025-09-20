@@ -14,3 +14,16 @@ export function getPrimaryImage(images: ProductImage[]) {
 
   return primaryImage || images[0];
 }
+
+export const formatCurrency = (
+  amount: number,
+  currency: string,
+  locale?: string
+): string => {
+  const formatter = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+  });
+
+  return formatter.format(amount);
+};

@@ -6,7 +6,9 @@ export type SignupFormState =
         password?: string[];
         confirmPassword?: string[];
       };
+
       message?: string;
+
       data?: {
         name?: string;
         email?: string;
@@ -23,6 +25,7 @@ export type LoginFormState =
       message?: string;
       data?: {
         email?: string;
+        password?: string;
       };
     }
   | undefined;

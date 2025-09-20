@@ -1,9 +1,9 @@
-import User from "../models/user.model.js";
-import asyncHandler from "../middlewares/asyncHandler.middleware.js";
+import User from "../models/user.js";
 import ErrorResponse from "../utilities/errorResponse.js";
+import asyncHandler from "../middlewares/asyncHandler.js";
 
 //@desc   register users
-//@route  POST /api/users/register
+//@route  POST /api/auth/register
 //@access Public route
 export const userRegister = asyncHandler(async (req, res) => {
   const { name, email, password } = req.validatedData;
@@ -36,7 +36,7 @@ export const userRegister = asyncHandler(async (req, res) => {
 });
 
 // @desc    Auth user & get token
-// @route   POST /api/users/login
+// @route   POST /api/auth/login
 // @access  Public
 export const userLogin = asyncHandler(async (req, res) => {
   const { email, password } = req.validatedData;
@@ -64,7 +64,7 @@ export const userLogin = asyncHandler(async (req, res) => {
 });
 
 // @desc    User logout
-// @route   POST /api/users/logout
+// @route   POST /api/auth/logout
 // @access  Private
 export const userLogout = asyncHandler(async (req, res) => {
   req.user.tokens = req.user.tokens.filter((tokenObj) => {
@@ -79,7 +79,7 @@ export const userLogout = asyncHandler(async (req, res) => {
 });
 
 // @desc    User logout all divice
-// @route   POST /api/users/logout-all-devices
+// @route   POST /api/auth/logout-all-devices
 // @access  Private
 export const logoutAllDevices = asyncHandler(async (req, res) => {
   req.user.tokens = [];
@@ -92,9 +92,9 @@ export const logoutAllDevices = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get user profile
-// @route   GET /api/users/profile
+// @route   GET /api/auth/verify
 // @access  Private
-export const getUserProfile = asyncHandler(async (req, res) => {
+export const verify = asyncHandler(async (req, res) => {
   res.status(200).send({
     status: "success",
     data: {

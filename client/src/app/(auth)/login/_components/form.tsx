@@ -5,7 +5,12 @@ import { login } from "@/lib/actions/auth";
 import { useActionState } from "react";
 
 export function LoginForm() {
-  const [state, formAction, isPending] = useActionState(login, undefined);
+  const [state, formAction, isPending] = useActionState(login, {
+    data: {
+      email: "john@example.com",
+      password: "12345678",
+    },
+  });
 
   return (
     <form action={formAction}>
@@ -17,6 +22,7 @@ export function LoginForm() {
             name="email"
             placeholder="m@example.com"
             type="email"
+            defaultValue={state?.data?.email}
           />
           {state?.errors?.email && (
             <p className="text-sm text-red-500">{state.errors.email}</p>
@@ -26,7 +32,12 @@ export function LoginForm() {
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
           </div>
-          <Input id="password" type="password" name="password" />
+          <Input
+            id="password"
+            type="password"
+            name="password"
+            defaultValue={state?.data?.password}
+          />
           {state?.errors?.password && (
             <p className="text-sm text-red-500">{state.errors.password}</p>
           )}

@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 
-import User from "../models/user.model.js";
-import asyncHandler from "./asyncHandler.middleware.js";
+import User from "../models/user.js";
 import ErrorResponse from "../utilities/errorResponse.js";
 
 export const auth = async (req, res, next) => {

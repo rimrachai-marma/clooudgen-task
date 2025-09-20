@@ -4,10 +4,10 @@ import {
   createProduct,
   getProduct,
   getProducts,
-} from "../controllers/product.controller.js";
-import { admin, auth } from "../middlewares/auth.middleware.js";
-import validateBody from "../middlewares/validate.middleware.js";
-import { productCreateSchema } from "../schemas/product.schema.js";
+} from "../../../controllers/product.js";
+import { admin, auth } from "../../../middlewares/auth.js";
+import validateBody from "../../../middlewares/validation.js";
+import { productCreateSchema } from "../../../schemas/product.js";
 
 const router = new express.Router();
 

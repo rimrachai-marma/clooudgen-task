@@ -2,8 +2,8 @@ import { Product } from "@/lib/types/product";
 import { RotateCcw, Shield, Truck } from "lucide-react";
 import React from "react";
 import StarRating from "./star-rating";
-import { formatCurrency } from "@/lib/utils/formater";
 import ProductAction from "./product-action";
+import { formatCurrency } from "@/lib/utils";
 
 interface Props {
   product: Product;
