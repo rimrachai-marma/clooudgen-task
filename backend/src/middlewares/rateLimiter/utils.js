@@ -9,7 +9,7 @@ export const keyGenerator = (req) => {
 };
 
 export const skipRequests = (req) => {
-  if (req.path === "/" || req.path === "/health") {
+  if (req.path === "/") {
     return true;
   }
 

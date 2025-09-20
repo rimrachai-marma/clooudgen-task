@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.use(globalLimiter);
 
-router.get("/health", (req, res) => {
+router.get("/", (req, res) => {
   res.json({
     status: "✅ Server is healthy",
     timestamp: new Date().toISOString(),
